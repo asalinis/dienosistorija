@@ -84,8 +84,7 @@ def page(title, desc, url, body, image=None, kind="website"):
 
 
 def meta_line(s, long=False):
-    rm = f"skaitymo laikas ~{s['readMin']} min." if long else f"{s['readMin']} min."
-    return f'<div class="label">{e(lt_date(s["date"]))} · <span class="cat">{e(s["category"])}</span> · {e(rm)}</div>'
+    return f'<div class="label">{e(lt_date(s["date"]))} · <span class="cat">{e(s["category"])}</span></div>'
 
 
 def story_page(s, newer, older, url=None):
