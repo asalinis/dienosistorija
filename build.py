@@ -6,6 +6,7 @@ body (HTML; images as /img/<date>-<n>.jpg), takeaways [3], sources [{title,url}]
 Output: index.html, <date>/index.html, feed.xml, 404.html.
 """
 import glob
+import hashlib
 import html
 import json
 import os
@@ -46,6 +47,8 @@ SUB_SCRIPT = """<script>window.EMAIL_INVALID_MESSAGE=window.SMS_INVALID_MESSAGE=
 <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>"""
 
 e = html.escape
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css"), "rb") as _f:
+    CSS_V = hashlib.md5(_f.read()).hexdigest()[:8]
 
 
 def lt_date(d):
@@ -72,7 +75,7 @@ def page(title, desc, url, body, image=None, kind="website"):
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{SITE}{e(url)}">
 {og_img}<meta name="twitter:card" content="summary_large_image">
 <link rel="alternate" type="application/rss+xml" title="{NAME}" href="/feed.xml">
-{FONTS}<link rel="stylesheet" href="/style.css">
+{FONTS}<link rel="stylesheet" href="/style.css?v={CSS_V}">
 </head><body><div class="wrap">
 <header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a></nav></header>
 <main>{body}</main>{SUBSCRIBE}{FOOT}
