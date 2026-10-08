@@ -109,7 +109,7 @@ def archive_page(stories):
     items = "".join(f'<li><a href="/{s["date"]}/"><span class="d">{s["date"]}</span>'
                     f'<span class="t">{e(s["title"])}<span class="c">{e(s["category"])}</span></span></a></li>'
                     for s in stories)
-    body = (f'<section class="archive"><h3>Archyvas · {len(stories)} istorijos</h3><ol>{items}</ol></section>'
+    body = (f'<section class="archive"><h3>Archyvas</h3><ol>{items}</ol></section>'
             if stories else '<p class="lead">Istorijų dar nėra.</p>')
     return page(f"Archyvas · {NAME}", "Visos Dienos istorijos: geografija, istorija, geopolitika.", "/archyvas/", body)
 
