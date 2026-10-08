@@ -81,3 +81,7 @@ article .hook{font-style:italic;font-size:19px;border-left:3px solid var(--mark)
 .entry__error{display:block;font-size:14px;color:var(--mark);margin-top:6px}
 .entry__error:empty{display:none}
 article{margin-top:24px}
+.sub button{display:inline-flex;align-items:center;gap:6px}
+.progress-indicator__icon{width:14px;height:14px;fill:currentColor;animation:subspin 1s linear infinite}
+@keyframes subspin{to{transform:rotate(360deg)}}
+.sub button[disabled]{opacity:.7;cursor:wait}
