@@ -54,7 +54,7 @@ def page(title, desc, url, body, image=None, kind="website"):
 <link rel="alternate" type="application/rss+xml" title="{NAME}" href="/feed.xml">
 {FONTS}<link rel="stylesheet" href="/style.css">
 </head><body><div class="wrap">
-<header class="mast"><a class="name" href="/">{NAME}</a><span class="coord">{TAGLINE}</span></header>
+<header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a></nav></header>
 <main>{body}</main>{FOOT}
 </div></body></html>
 """
@@ -65,14 +65,14 @@ def meta_line(s, long=False):
     return f'<div class="label">{e(lt_date(s["date"]))} · <span class="cat">{e(s["category"])}</span> · {e(rm)}</div>'
 
 
-def story_page(s, newer, older):
+def story_page(s, newer, older, url=None):
     keep = "".join(f"<li>{e(t)}</li>" for t in s.get("takeaways", []))
     src = "".join(f'<li><a href="{e(x["url"])}" rel="noopener">{e(x.get("title") or x["url"])}</a></li>'
                   for x in s.get("sources", []) if str(x.get("url", "")).startswith("http"))
     left = '<a href="/%s/">← %s</a>' % (older["date"], e(older["title"])) if older else ""
     right = '<a href="/%s/">%s →</a>' % (newer["date"], e(newer["title"])) if newer else ""
     nav = f'<nav class="nav"><span>{left}</span><span>{right}</span></nav>'
-    body = f"""<a class="back" href="/">← Visos istorijos</a>
+    body = f"""<a class="back" href="/archyvas/">Visos istorijos – archyvas →</a>
 <article>{meta_line(s, True)}
 <h1>{e(s['title'])}</h1>
 <p class="hook">{e(s['hook'])}</p>
@@ -80,27 +80,16 @@ def story_page(s, newer, older):
 {f'<div class="keep"><h3>Trys dalykai, kuriuos verta prisiminti</h3><ol>{keep}</ol></div>' if keep else ''}
 {f'<div class="src">Šaltiniai<ul>{src}</ul></div>' if src else ''}
 </article>{nav}"""
-    return page(f"{s['title']} · {NAME}", s["hook"], f"/{s['date']}/", body, first_img(s), "article")
+    return page(f"{s['title']} · {NAME}", s["hook"], url or f"/{s['date']}/", body, first_img(s), "article")
 
 
-def index_page(stories):
-    if not stories:
-        return page(NAME, "Kasdienės istorijos apie geografiją, istoriją ir geopolitiką.", "/",
-                    '<p class="lead">Pirmoji istorija pasirodys netrukus.</p>')
-    first, rest = stories[0], stories[1:]
-    img = first_img(first)
-    lead = f"""<section class="lead">{meta_line(first)}
-<h2><a href="/{first['date']}/">{e(first['title'])}</a></h2>
-{f'<a href="/{first["date"]}/"><img src="{e(img)}" alt=""></a>' if img else ''}
-<p>{e(first['hook'])}</p><a class="read" href="/{first['date']}/">Skaityti →</a></section>"""
-    arch = ""
-    if rest:
-        items = "".join(f'<li><a href="/{s["date"]}/"><span class="d">{s["date"]}</span>'
-                        f'<span class="t">{e(s["title"])}<span class="c">{e(s["category"])}</span></span></a></li>'
-                        for s in rest)
-        arch = f'<section class="archive"><h3>Archyvas · {len(rest)}</h3><ol>{items}</ol></section>'
-    return page(NAME, "Kasdienės istorijos apie geografiją, istoriją ir geopolitiką: viena tema, iki 10 minučių skaitymo.",
-                "/", lead + arch, img)
+def archive_page(stories):
+    items = "".join(f'<li><a href="/{s["date"]}/"><span class="d">{s["date"]}</span>'
+                    f'<span class="t">{e(s["title"])}<span class="c">{e(s["category"])}</span></span></a></li>'
+                    for s in stories)
+    body = (f'<section class="archive"><h3>Archyvas · {len(stories)} istorijos</h3><ol>{items}</ol></section>'
+            if stories else '<p class="lead">Istorijų dar nėra.</p>')
+    return page(f"Archyvas · {NAME}", "Visos Dienos istorijos: geografija, istorija, geopolitika.", "/archyvas/", body)
 
 
 def feed(stories):
@@ -127,7 +116,14 @@ def main():
         with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as fh:
             fh.write(story_page(s, stories[i - 1] if i > 0 else None, stories[i + 1] if i + 1 < len(stories) else None))
     with open(os.path.join(root, "index.html"), "w", encoding="utf-8") as fh:
-        fh.write(index_page(stories))
+        if stories:
+            fh.write(story_page(stories[0], None, stories[1] if len(stories) > 1 else None, "/"))
+        else:
+            fh.write(page(NAME, "Kasdienės istorijos apie geografiją, istoriją ir geopolitiką.", "/",
+                          '<p class="lead">Pirmoji istorija pasirodys netrukus.</p>'))
+    os.makedirs(os.path.join(root, "archyvas"), exist_ok=True)
+    with open(os.path.join(root, "archyvas", "index.html"), "w", encoding="utf-8") as fh:
+        fh.write(archive_page(stories))
     with open(os.path.join(root, "feed.xml"), "w", encoding="utf-8") as fh:
         fh.write(feed(stories))
     with open(os.path.join(root, "404.html"), "w", encoding="utf-8") as fh:
