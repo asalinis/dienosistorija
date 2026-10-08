@@ -1,7 +1,7 @@
 /* Atlas notebook: one reading column — masthead, latest story, dated archive; story pages are long-read columns with full-width figures. */
 :root{
   --paper:#f2f4f3; --ink:#16222b; --muted:#5d6b73; --rule:#d3dadc;
-  --accent:#2c5b86; --mark:#a8412f; --panel:#e6ecec;
+  --accent:#2c5b86; --mark:#a8412f; --panel:#e6ecec; --brand:#1b3a5c;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Literata",Georgia,"Times New Roman",serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -9,7 +9,7 @@
 }
 @media (prefers-color-scheme: dark){:root{
   --paper:#10171c; --ink:#e4eaec; --muted:#97a5ac; --rule:#2a363d;
-  --accent:#8fb6db; --mark:#e08a74; --panel:#18232a; color-scheme:dark}}
+  --accent:#8fb6db; --mark:#e08a74; --panel:#18232a; --brand:#a9c8ea; color-scheme:dark}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.65}
@@ -18,7 +18,7 @@ img{max-width:100%}
 a{color:var(--accent)}
 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px}
-.mast .name{font-family:var(--display);font-weight:700;font-size:clamp(28px,6vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05;color:inherit;text-decoration:none}
+.mast .name{color:var(--brand)!important;font-family:var(--display);font-weight:700;font-size:clamp(28px,6vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05;color:inherit;text-decoration:none}
 .coord{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
 .label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .label .cat{color:var(--mark)}
