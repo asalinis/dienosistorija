@@ -25,6 +25,26 @@ FOOT = ('<footer class="foot">Nauja istorija kiekvieną rytą. Tekstus rengia di
         'vaizdai – Wikimedia Commons, autoriai ir licencijos nurodyti po kiekvienu. '
         '<a href="/feed.xml">RSS</a></footer>')
 
+SUBSCRIBE = """<section class="sub" id="prenumerata">
+<div id="sib-form-container" class="sib-form-container">
+<div id="error-message" class="sib-form-message-panel sub-msg sub-err"><div class="sib-form-message-panel__text"><span class="sib-form-message-panel__inner-text">Nepavyko užregistruoti. Patikrinkite el. pašto adresą ir bandykite dar kartą.</span></div></div>
+<div id="success-message" class="sib-form-message-panel sub-msg sub-ok"><div class="sib-form-message-panel__text"><span class="sib-form-message-panel__inner-text">Ačiū! Nuo rytojaus Dienos istoriją gausite el. paštu.</span></div></div>
+<div id="sib-container">
+<form id="sib-form" method="POST" action="https://7ed721d5.sibforms.com/serve/MUIFAAghruBvpt7vhLmCyhsmVP8Fsu63ZJemxWRlHJXgbBMJbajLHLkZily9pJWaa8Is0EeqhF5ihtgmQ-730H3xEmhWiqfIlbcgnSc3nB_5Agk9QFYB9czDIfgSkO0LMA9-5cOWV-Y9JX0k7PtHh_hvRjCzt9CmsElzOJQgS8oVJKlYnxb027abxF_G7wPQtSekTV4Mxt5JhA0Plg==" data-type="subscription">
+<h3>Dienos istorija tavo pašto dėžutėje</h3>
+<p class="sub-lead">Kiekvieną rytą – trumpa santrauka ir nuoroda į naują istoriją.</p>
+<div class="sib-input sib-form-block"><div class="form__entry entry_block"><div class="form__label-row"><div class="entry__field sub-row">
+<label class="sub-sr" for="EMAIL">El. pašto adresas</label>
+<input class="input" type="email" id="EMAIL" name="EMAIL" autocomplete="email" placeholder="el. pašto adresas" data-required="true" required>
+<button class="sib-form-block__button sib-form-block__button-with-loader" form="sib-form" type="submit">Prenumeruoti</button>
+</div></div><label class="entry__error entry__error--primary"></label></div></div>
+<input type="text" name="email_address_check" value="" class="input--hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+<input type="hidden" name="locale" value="en">
+<p class="sub-note">Užsiregistravę sutinkate gauti kasdienį laišką. Atsisakyti galite bet kada – nuoroda yra kiekvieno laiško apačioje.</p>
+</form></div></div></section>"""
+SUB_SCRIPT = """<script>window.EMAIL_INVALID_MESSAGE=window.SMS_INVALID_MESSAGE=window.GENERIC_INVALID_MESSAGE="Neteisingas el. pašto adresas.";window.REQUIRED_ERROR_MESSAGE="Įveskite el. pašto adresą.";window.INVALID_NUMBER="Neteisingas numeris.";window.INVALID_DATE="Neteisinga data.";window.REQUIRED_CODE_ERROR_MESSAGE="";window.REQUIRED_MULTISELECT_MESSAGE="";window.LOCALE="en";window.translation={common:{selectedList:"",selectedLists:"",selectedOption:"",selectedOptions:""}};var AUTOHIDE=Boolean(0);</script>
+<script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>"""
+
 e = html.escape
 
 
@@ -55,8 +75,8 @@ def page(title, desc, url, body, image=None, kind="website"):
 {FONTS}<link rel="stylesheet" href="/style.css">
 </head><body><div class="wrap">
 <header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a></nav></header>
-<main>{body}</main>{FOOT}
-</div></body></html>
+<main>{body}</main>{SUBSCRIBE}{FOOT}
+</div>{SUB_SCRIPT}</body></html>
 """
 
 

@@ -1,0 +1,54 @@
+name: Rytinis laiškas
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/stories/*.json"]
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Istorijos data (YYYY-MM-DD)"
+        required: true
+      test_email:
+        description: "Siųsti tik šiuo adresu (bandymui). Palikite tuščią, kad siųstų visam sąrašui."
+        required: false
+
+concurrency:
+  group: send-email
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    env:
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+      BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Laukti, kol svetainė atsinaujins
+        if: github.event_name == 'push'
+        run: sleep 90
+
+      - name: Siųsti naujų istorijų laiškus
+        if: github.event_name == 'push'
+        run: |
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "Pirmas įkėlimas – laiškų nesiunčiame."; exit 0
+          fi
+          added=$(git diff --name-only --diff-filter=A "$before" "${{ github.sha }}" -- 'data/stories/*.json')
+          if [ -z "$added" ]; then echo "Naujų istorijų nėra."; exit 0; fi
+          for f in $added; do python3 scripts/send_email.py "$f"; done
+
+      - name: Rankinis siuntimas
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          f="data/stories/${{ inputs.date }}.json"
+          if [ -n "${{ inputs.test_email }}" ]; then
+            python3 scripts/send_email.py "$f" --test "${{ inputs.test_email }}"
+          else
+            python3 scripts/send_email.py "$f"
+          fi
