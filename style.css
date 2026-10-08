@@ -80,3 +80,4 @@ article .hook{font-style:italic;font-size:19px;border-left:3px solid var(--mark)
 .sub-err{background:color-mix(in srgb,var(--mark) 16%,var(--paper));color:var(--ink)}
 .entry__error{display:block;font-size:14px;color:var(--mark);margin-top:6px}
 .entry__error:empty{display:none}
+article{margin-top:24px}

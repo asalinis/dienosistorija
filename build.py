@@ -95,8 +95,7 @@ def story_page(s, newer, older, url=None):
     left = '<a href="/%s/">← %s</a>' % (older["date"], e(older["title"])) if older else ""
     right = '<a href="/%s/">%s →</a>' % (newer["date"], e(newer["title"])) if newer else ""
     nav = f'<nav class="nav"><span>{left}</span><span>{right}</span></nav>'
-    body = f"""<a class="back" href="/archyvas/">Visos istorijos – archyvas →</a>
-<article>{meta_line(s, True)}
+    body = f"""<article>{meta_line(s, True)}
 <h1>{e(s['title'])}</h1>
 <p class="hook">{e(s['hook'])}</p>
 <div class="body">{s['body']}</div>
