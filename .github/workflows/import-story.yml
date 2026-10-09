@@ -1,0 +1,62 @@
+name: Rytinė istorija
+
+# Every morning the scheduled task puts <date>.json into the public Drive folder.
+# This workflow picks it up, publishes it on the site and emails subscribers.
+on:
+  schedule:
+    - cron: "*/10 2-5 * * *"   # 05:00–08:59 Vilnius time (summer), every 10 minutes
+  workflow_dispatch:
+    inputs:
+      list_only:
+        description: "Tik patikrinti Drive aplanką (nieko nekeisti)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-story
+  cancel-in-progress: false
+
+env:
+  DRIVE_FOLDER_ID: 1SO3W5SSX6q6Flnv4FccsZ9TmIUw8gKLX
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Įdiegti Pillow
+        run: pip install --quiet pillow
+
+      - name: Patikrinti aplanką
+        if: inputs.list_only
+        run: python3 scripts/import_story.py --list
+
+      - name: Paimti šiandienos istoriją
+        id: imp
+        if: ${{ !inputs.list_only }}
+        run: python3 scripts/import_story.py
+
+      - name: Paskelbti svetainėje
+        if: steps.imp.outputs.imported
+        run: |
+          python3 build.py
+          git config user.name "Dienos istorija"
+          git config user.email "labas@dienosistorija.lt"
+          git add -A
+          git commit -m "Istorija ${{ steps.imp.outputs.imported }}"
+          git push
+
+      - name: Laukti, kol svetainė atsinaujins
+        if: steps.imp.outputs.imported
+        run: sleep 90
+
+      - name: Išsiųsti laišką prenumeratoriams
+        if: steps.imp.outputs.imported
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_LIST_ID: ${{ secrets.BREVO_LIST_ID }}
+        run: python3 scripts/send_email.py "data/stories/${{ steps.imp.outputs.imported }}.json"
