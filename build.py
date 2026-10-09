@@ -74,6 +74,7 @@ def page(title, desc, url, body, image=None, kind="website"):
 <meta property="og:type" content="{kind}"><meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{SITE}{e(url)}">
 {og_img}<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="alternate" type="application/rss+xml" title="{NAME}" href="/feed.xml">
 {FONTS}<link rel="stylesheet" href="/style.css?v={CSS_V}">
 </head><body><div class="wrap">
