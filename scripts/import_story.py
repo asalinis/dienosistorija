@@ -115,8 +115,14 @@ def main():
     for n, img in enumerate(images, 1):
         commons = img["file"] if isinstance(img, dict) else img
         dest = os.path.join(ROOT, "img", f"{today}-{n}.jpg")
-        fetch_image(commons, dest)
-        print("image", n, commons)
+        try:
+            fetch_image(commons, dest)
+            print("image", n, commons)
+        except Exception as err:  # noqa: BLE001
+            print(f"Warning: image {n} ({commons}) skipped: {err}")
+            story["body"] = re.sub(
+                r'<figure>(?:(?!</figure>).)*?src="/img/' + re.escape(f"{today}-{n}.jpg") + r'".*?</figure>',
+                "", story["body"], flags=re.S)
     story["imageSources"] = images
     refs = re.findall(r'src="(/img/[^"]+)"', story["body"])
     absent = [r for r in refs if not os.path.exists(ROOT + r)]
