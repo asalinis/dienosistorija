@@ -77,7 +77,9 @@ def main():
         sys.exit("DRIVE_FOLDER_ID is not set")
     files = list_folder()
     if "--list" in sys.argv:
-        print("Folder contents:", files or "(empty or not public)")
+        if not files:
+            sys.exit("Drive folder is empty or not shared publicly ('Anyone with the link').")
+        print("Folder contents:", files)
         for name, fid in files.items():
             print(name, "->", download(fid)[:120])
         return
