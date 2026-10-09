@@ -75,21 +75,35 @@ def fetch_image(commons_name, dest):
 def main():
     if not FOLDER:
         sys.exit("DRIVE_FOLDER_ID is not set")
-    files = list_folder()
     if "--list" in sys.argv:
+        files = list_folder()
         if not files:
             sys.exit("Drive folder is empty or not shared publicly ('Anyone with the link').")
         print("Folder contents:", files)
         for name, fid in files.items():
             print(name, "->", download(fid)[:120])
         return
-    today = datetime.now(ZoneInfo("Europe/Vilnius")).strftime("%Y-%m-%d")
+    now = datetime.now(ZoneInfo("Europe/Vilnius"))
+    today = now.strftime("%Y-%m-%d")
     target = os.path.join(ROOT, "data", "stories", f"{today}.json")
     if os.path.exists(target):
         print(f"{today}: already published.")
         return
+    # Scheduled runs only report a failure once, on the last check of the morning.
+    strict = os.environ.get("GITHUB_EVENT_NAME") != "schedule" or (now.hour, now.minute) >= (8, 45)
+    try:
+        files = list_folder()
+    except RuntimeError as err:
+        msg = f"Cannot read the Drive folder (is it shared 'Anyone with the link'?): {err}"
+        if strict:
+            sys.exit(msg)
+        print("Warning:", msg)
+        return
     if f"{today}.json" not in files:
-        print(f"{today}: not in Drive yet. Folder has: {sorted(files)}")
+        msg = f"{today}: story not in Drive. Folder has: {sorted(files)}"
+        if strict:
+            sys.exit(msg)
+        print(msg)
         return
     story = json.loads(download(files[f"{today}.json"]).decode("utf-8"))
     missing = [k for k in REQUIRED if k not in story]
