@@ -147,7 +147,7 @@ main{grid-area:main;position:relative;min-height:0}
 
 .sheet{position:absolute;z-index:3;background:var(--panel);box-shadow:var(--shadow);border:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 @media (max-width:899px){
-  .sheet{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;max-height:52%;border-bottom:0}
+  .sheet{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;max-height:46%;border-bottom:0}
   .sheet.min .sbody{display:none}
   .zoomc{bottom:auto;top:112px}
 }
@@ -561,12 +561,18 @@ function updateScale(){
   lakeLbl.attr('display',x=>LS.lake&&(x.pw*zs>x.n.length*4||zs>=3)?null:'none');
   rivLbl.attr('display',x=>LS.riv===2&&(x.pw*zs>x.n.length*7||zs>=2.5)?null:'none');
 }
-function zoomTo(feature,pad){const b=path.bounds(feature);let [[x0,y0],[x1,y1]]=b;if(!isFinite(x0))return;const w=Math.max(x1-x0,4),h=Math.max(y1-y0,4);const o=sheetOffset();const rect=svg.node().getBoundingClientRect();const sc=rect.width/W;const availW=W-Math.abs(o[0])*2,availH=VH-Math.abs(o[1])*2-60/sc;const k=Math.max(1,Math.min(24,0.85/Math.max(w/availW,h/Math.max(availH,120))/(pad||1)));const cx=(x0+x1)/2,cy=(y0+y1)/2;
+function zoomTo(feature,pad){const b=path.bounds(feature);let [[x0,y0],[x1,y1]]=b;if(!isFinite(x0))return;const w=Math.max(x1-x0,4),h=Math.max(y1-y0,4);const o=sheetOffset();const rect=svg.node().getBoundingClientRect();const sc=rect.width/W;const band=mapBand();const availW=W-Math.abs(o[0])*2-40/sc,availH=(band[1]-band[0])/sc;const k=Math.max(1,Math.min(24,0.85/Math.max(w/availW,h/Math.max(availH,120))/(pad||1)));const cx=(x0+x1)/2,cy=(y0+y1)/2;
   zoomPoint([cx,cy],k)}
 function zoomPoint(P,k){const o=sheetOffset();const t=d3.zoomIdentity.translate(W/2+o[0],H/2+o[1]).scale(k).translate(-P[0],-P[1]);svg.transition().duration(reduced?0:700).call(zoom.transform,t)}
 function sheetOffset(){const sheet=$('#sheet'); // keep the target clear of the info panel: [dx,dy] in viewBox units
-  if(sheet.hidden)return [0,0];const rect=svg.node().getBoundingClientRect();const scale=rect.width/W;const sr=$('#sheet').getBoundingClientRect();
-  if(window.innerWidth>=900)return [-(sr.width+12)/2/scale,0];return [0,-(sr.height*0.5)/scale]}
+  const rect=svg.node().getBoundingClientRect();const scale=rect.width/W;const b=mapBand();
+  if(window.innerWidth>=900&&!sheet.hidden){const sr=sheet.getBoundingClientRect();return [-(sr.width+12)/2/scale,((b[0]+b[1])/2-rect.height/2)/scale]}
+  return [0,((b[0]+b[1])/2-rect.height/2)/scale]}
+// vertical band of the map (px from its top) not covered by the search/theme bars or the info card
+function mapBand(){const rect=svg.node().getBoundingClientRect();const th=$('#themes');let top=8;
+  if(th&&th.offsetParent){top=th.getBoundingClientRect().bottom-rect.top+6}else{const qb=$('#quizbar');if(qb&&!qb.hidden)top=qb.getBoundingClientRect().bottom-rect.top+6}
+  let bot=rect.height-8;const sh=$('#sheet');if(window.innerWidth<900&&!sh.hidden)bot=sh.getBoundingClientRect().top-rect.top-6;
+  return [top,Math.max(top+80,bot)]}
 const reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 $('#zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1.8);
 $('#zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.8);
@@ -666,18 +672,19 @@ function featureHTML(f){
   <ul class="facts"><li>${esc(f.f)}</li></ul>
   ${cs.length?`<div class="sec"><h3>${f.kind==='river'?'Teka per':f.kind==='sea'?'Pakrančių šalys':'Šalys'}</h3><div class="linkchips">${cs.map(chipC).join('')}</div></div>`:''}`;
 }
-function selectCountry(id,fly){const c=byId[id];if(!c)return;clearSel();HL.cty[id]='sel';schedule();gDots.selectAll(`circle[data-id="${id}"]`).classed('sel',true);
+function selectCountry(id,fly){const c=byId[id];if(!c)return;if(curView!=='map')showView('map');clearSel();HL.cty[id]='sel';schedule();gDots.selectAll(`circle[data-id="${id}"]`).classed('sel',true);
   if(!S.explored[id]){S.explored[id]=1;save()}
   openSheet(c.n,countryHTML(c),true);
-  if(fly){if(c.lp&&c.parea>=4)zoomTo(c.lp,c.id==='RUS'?1.1:1.4);else zoomPoint(c.capP||c.lc,14)}}
-function selectFeature(f,fly){if(!f)return;clearSel();const k=fkey(f);
+  if(fly)afterLayout(()=>{if(c.lp&&c.parea>=4)zoomTo(c.lp,c.id==='RUS'?1.1:1.4);else zoomPoint(c.capP||c.lc,8)})}
+function selectFeature(f,fly){if(!f)return;if(curView!=='map')showView('map');clearSel();const k=fkey(f);
   if(f.kind==='lake'||f.kind==='river'){HL.feat[k]='sel';schedule()}
   if(f.kind==='sea'){HL.feat[k]='sel';schedule()}
   gPts.selectAll(`[data-k="${k}"]`).classed('sel',true);
   if(!(quiz&&quiz.map))setTheme(themeOf(f));
   openSheet(f.t||KIND[f.kind],featureHTML(f),true);
-  if(fly){if(f.geom.type==='Point')zoomPoint(f.P,f.k==='record'&&f.id==='nemo'?2:5);else zoomTo(f.geom,1.25)}
-  if(curView!=='map')showView('map')}
+  if(fly)afterLayout(()=>{if(f.geom.type==='Point')zoomPoint(f.P,f.k==='record'&&f.id==='nemo'?2:5);else zoomTo(f.geom,1.25)})}
+// wait until the map view and the info card have their real size before computing a zoom
+function afterLayout(fn){requestAnimationFrame(()=>{sizeVB();zoom.extent([[0,(H-VH)/2],[W,(H+VH)/2]]);requestAnimationFrame(fn)})}
 
 function onCountryTap(id,e){if(quiz&&quiz.map){mapQuizAnswer(e,id);return}selectCountry(id,false)}
 function onFeatureTap(f,e){e.stopPropagation();if(quiz&&quiz.map){if(quiz.kind==='nfind'){mapQuizAnswer(e,null)}return}e.stopPropagation();selectFeature(f,false)}
@@ -695,8 +702,9 @@ document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('#result
 
 /* ---------- views ---------- */
 let curView='map';
-function showView(v){curView=v;document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
+function showView(v){const wasMap=curView==='map';curView=v;document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
   ['map','nature','quiz','prog'].forEach(x=>$('#v-'+x).hidden=x!==v);
+  if(v==='map'&&!wasMap)requestAnimationFrame(()=>{sizeVB();zoom.extent([[0,(H-VH)/2],[W,(H+VH)/2]]);schedule()});
   if(v==='nature')renderNature();if(v==='quiz'&&!(quiz&&!quiz.map))renderQuizHome();if(v==='prog')renderProg()}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>showView(b.dataset.v));
 
