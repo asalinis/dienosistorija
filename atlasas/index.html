@@ -859,7 +859,7 @@ function geoDistToFeature(ll,f){const R=6371;if(f.geom.type==='Point')return d3.
 
 function mapQuizAnswer(e,cid){if(!quiz||quiz.answered)return;const q=quiz.cur;
   if(quiz.kind==='find'){if(!cid)return;quiz.answered=true;const ok=cid===q.c.id;record(q.id,ok,'find');if(ok)quiz.score++;else quiz.miss.push({c:q.c});
-    HL.cty[q.c.id]='ok';gDots.selectAll(`circle[data-id="${q.c.id}"]`).classed('ok',true);
+    HL.cty[q.c.id]='ok';schedule();gDots.selectAll(`circle[data-id="${q.c.id}"]`).classed('ok',true);
     if(!ok){HL.cty[cid]='no';gDots.selectAll(`circle[data-id="${cid}"]`).classed('no',true)}
     const c=q.c;mapFeedback(ok,ok?`Teisingai – tai ${c.n}.`:`Tai buvo ${byId[cid].n}. ${c.n} pažymėta žaliai.`,(c.nat&&c.nat[0])||c.f||'',`c:${c.id}`);
     if(!ok){if(c.lp&&c.parea>=4){const fc={type:'FeatureCollection',features:[{type:'Feature',geometry:c.lp},...(byId[cid].lp?[{type:'Feature',geometry:byId[cid].lp}]:[])]};zoomTo(fc,1.2)}else zoomPoint(c.capP||c.lc,8)}}
