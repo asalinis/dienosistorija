@@ -66,7 +66,7 @@ def first_img(s):
 
 TABS = [("/", "Istorija", '<path d="M4 5h16M4 10h16M4 15h10M4 20h7"/>'),
         ("/archyvas/", "Archyvas", '<path d="M4 7h16v13H4zM3 4h18v3H3zM10 11h4"/>'),
-        ("/zaidimas/", "Žaidimas", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>')]
+        ("/atlasas/", "Atlasas", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>')]
 
 
 def tabbar(active):
@@ -91,7 +91,7 @@ def page(title, desc, url, body, image=None, kind="website", active="/"):
 <link rel="alternate" type="application/rss+xml" title="{NAME}" href="/feed.xml">
 {FONTS}<link rel="stylesheet" href="/style.css?v={CSS_V}">
 </head><body><div class="wrap">
-<header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a> <a href="/zaidimas/">Žaidimas</a></nav></header>
+<header class="mast"><a class="name" href="/">{NAME}</a></header>
 <main>{body}</main>{SUBSCRIBE}{FOOT}
 </div>{tabbar(active)}{SUB_SCRIPT}</body></html>
 """

@@ -6,8 +6,8 @@ Kasdienės istorijos apie geografiją, istoriją ir geopolitiką – [dienosisto
 - `img/` – paveikslėliai iš Wikimedia Commons (`<data>-<n>.jpg`)
 - `python3 build.py` – sugeneruoja `index.html` (naujausia istorija), `<data>/index.html`, `archyvas/index.html`, `feed.xml` ir `404.html`
 - `style.css` – svetainės stilius
-- `zaidimas/index.html` – geografijos žaidimas (interaktyvus atlasas ir viktorinos), vienas savarankiškas failas; `build.py` jo nekeičia
-- Apatinė skilčių juosta (Istorija · Archyvas · Žaidimas) generuojama `build.py` funkcijoje `tabbar()`
+- `atlasas/index.html` – atlasas (interaktyvus atlasas ir viktorinos), vienas savarankiškas failas; `build.py` jo nekeičia
+- Apatinė skilčių juosta (Istorija · Archyvas · Atlasas) generuojama `build.py` funkcijoje `tabbar()`
 
 Nauja istorija įkeliama kiekvieną rytą automatiškai: Claude užduotis 5:15 parašo istoriją ir įdeda `<data>.json` į viešą Google Drive aplanką, o GitHub Actions (`.github/workflows/import-story.yml`, kas 10 min. 5:00–9:00) ją paima (`scripts/import_story.py`), atsisiunčia paveikslėlius iš Wikimedia Commons, paskelbia svetainėje ir išsiunčia laišką.
 
