@@ -85,3 +85,11 @@ article{margin-top:24px}
 .progress-indicator__icon{width:14px;height:14px;fill:currentColor;animation:subspin 1s linear infinite}
 @keyframes subspin{to{transform:rotate(360deg)}}
 .sub button[disabled]{opacity:.7;cursor:wait}
+/* Apatinė skilčių juosta */
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:4px;background:var(--paper);border-top:1px solid var(--rule);padding:6px max(12px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.tabbar a{flex:0 1 150px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-radius:6px}
+.tabbar a svg{width:22px;height:22px}
+.tabbar a[aria-current="page"]{color:var(--brand)}
+.tabbar a:hover{color:var(--accent)}
+.mast nav a+a{margin-left:14px}

@@ -64,11 +64,24 @@ def first_img(s):
     return b[i + 5:b.find('"', i + 5)]
 
 
-def page(title, desc, url, body, image=None, kind="website"):
+TABS = [("/", "Istorija", '<path d="M4 5h16M4 10h16M4 15h10M4 20h7"/>'),
+        ("/archyvas/", "Archyvas", '<path d="M4 7h16v13H4zM3 4h18v3H3zM10 11h4"/>'),
+        ("/zaidimas/", "Žaidimas", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>')]
+
+
+def tabbar(active):
+    items = "".join(
+        '<a href="%s"%s>' % (h, ' aria-current="page"' if h == active else "") +
+        f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ic}</svg>{n}</a>'
+        for h, n, ic in TABS)
+    return f'<nav class="tabbar" aria-label="Skiltys">{items}</nav>'
+
+
+def page(title, desc, url, body, image=None, kind="website", active="/"):
     og_img = f'<meta property="og:image" content="{SITE}{e(image)}">' if image else ""
     return f"""<!doctype html>
 <html lang="lt"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <meta property="og:type" content="{kind}"><meta property="og:title" content="{e(title)}">
@@ -78,9 +91,9 @@ def page(title, desc, url, body, image=None, kind="website"):
 <link rel="alternate" type="application/rss+xml" title="{NAME}" href="/feed.xml">
 {FONTS}<link rel="stylesheet" href="/style.css?v={CSS_V}">
 </head><body><div class="wrap">
-<header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a></nav></header>
+<header class="mast"><a class="name" href="/">{NAME}</a><nav class="coord"><a href="/archyvas/">Archyvas</a> <a href="/zaidimas/">Žaidimas</a></nav></header>
 <main>{body}</main>{SUBSCRIBE}{FOOT}
-</div>{SUB_SCRIPT}</body></html>
+</div>{tabbar(active)}{SUB_SCRIPT}</body></html>
 """
 
 
@@ -111,7 +124,7 @@ def archive_page(stories):
                     for s in stories)
     body = (f'<section class="archive"><h3>Archyvas</h3><ol>{items}</ol></section>'
             if stories else '<p class="lead">Istorijų dar nėra.</p>')
-    return page(f"Archyvas · {NAME}", "Visos Dienos istorijos: geografija, istorija, geopolitika.", "/archyvas/", body)
+    return page(f"Archyvas · {NAME}", "Visos Dienos istorijos: geografija, istorija, geopolitika.", "/archyvas/", body, active="/archyvas/")
 
 
 def feed(stories):
@@ -150,7 +163,7 @@ def main():
         fh.write(feed(stories))
     with open(os.path.join(root, "404.html"), "w", encoding="utf-8") as fh:
         fh.write(page(f"Puslapis nerastas · {NAME}", "Puslapis nerastas.", "/404.html",
-                      '<p class="lead">Tokio puslapio nėra. <a href="/">Grįžti į pradžią</a></p>'))
+                      '<p class="lead">Tokio puslapio nėra. <a href="/">Grįžti į pradžią</a></p>', active=None))
     print(f"Built {len(stories)} stories")
 
 
