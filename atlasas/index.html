@@ -61,7 +61,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .brand i{color:var(--accent)}
 .top .sub{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 main{grid-area:main;position:relative;min-height:0}
-.tabs{grid-area:nav;display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border-top:1px solid var(--line);padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+.tabs{grid-area:nav;display:grid;grid-template-columns:repeat(3,1fr);background:var(--panel);border-top:1px solid var(--line);padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
 .tabs button{background:none;border:0;padding:8px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);font-weight:500}
 .tabs button svg{width:22px;height:22px}
 .tabs button[aria-selected="true"]{color:var(--accent)}
@@ -180,7 +180,13 @@ main{grid-area:main;position:relative;min-height:0}
 .ctflag{width:52px;height:auto;flex:none;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
 .qflag{width:min(260px,70vw);height:auto;border-radius:4px;box-shadow:0 0 0 1px var(--line)}
 .symnone{color:var(--muted);text-align:center}
-.credit{margin:0;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.symrow .zoomable{cursor:zoom-in;padding:0;border:0;background:none;display:block}
+.lightbox{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));cursor:zoom-out}
+.lightbox figure{margin:0;display:grid;gap:14px;justify-items:center;max-width:min(560px,100%)}
+.lightbox img{width:min(520px,88vw);max-height:62vh;object-fit:contain;filter:drop-shadow(0 6px 24px rgba(0,0,0,.2))}
+.lightbox img.isflag{border-radius:6px;box-shadow:0 0 0 1px var(--line)}
+.lightbox figcaption{font-size:15px;line-height:1.5;color:var(--ink);text-align:left;max-width:60ch}
+.lightbox figcaption b{display:block;font-family:var(--f-display);font-weight:400;font-size:26px;margin-bottom:4px}
 .facts{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .facts li{padding-left:18px;position:relative}
 .facts li::before{content:"";position:absolute;left:2px;top:.55em;width:8px;height:8px;border-radius:50% 0;background:var(--nature)}
@@ -330,13 +336,13 @@ main{grid-area:main;position:relative;min-height:0}
     </section>
     <section class="view scroll" id="v-nature" hidden><div class="wrap" id="natwrap"></div></section>
     <section class="view scroll" id="v-quiz" hidden><div class="wrap" id="quizwrap"></div></section>
-    <section class="view scroll" id="v-prog" hidden><div class="wrap" id="progwrap"></div></section>
   </main>
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Padidintas vaizdas"><figure><img id="lbimg" alt=""><figcaption id="lbcap"></figcaption></figure></div>
   <nav class="tabs" role="tablist">
     <button role="tab" data-v="map" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2V6Z"/><path d="M9 4v14M15 6v14"/></svg>Žemėlapis</button>
     <button role="tab" data-v="nature" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m2 20 7-12 4 6 3-4 6 10H2Z"/><circle cx="17" cy="5" r="2"/></svg>Gamta</button>
     <button role="tab" data-v="quiz" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>Viktorina</button>
-    <button role="tab" data-v="prog" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Pažanga</button>
+    
   </nav>
 </div>
 
@@ -628,7 +634,14 @@ function closeSheet(){sheet.hidden=true;$('#v-map').classList.remove('sheet-open
 function openSheet(title,html,closable){sheet.hidden=false;$('#v-map').classList.add('sheet-open');$('#stitle').textContent=title;sbody.innerHTML=html;sbody.scrollTop=0;sheet.classList.remove('min');$('#grab').setAttribute('aria-expanded','true');$('#sclose').hidden=!closable;wireLinks(sbody)}
 $('#grab').onclick=()=>{const m=sheet.classList.toggle('min');$('#grab').setAttribute('aria-expanded',!m);$('#grabIc').setAttribute('d',m?'m6 9 6 6 6-6':'m6 15 6-6 6 6')};
 $('#sclose').onclick=()=>{clearSel();closeSheet()};
-function wireLinks(root){root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const v=b.dataset.go;if(v.startsWith('c:'))selectCountry(v.slice(2),true);else selectFeature(fById[v],true)});
+function openLightbox(kind,id){const c=byId[id];if(!c)return;const lb=$('#lightbox'),img=$('#lbimg');
+  img.className=kind==='flag'?'isflag':'';img.onerror=kind==='flag'?null:()=>{img.onerror=null;img.src=`herbai/${c.id}.webp`};img.src=kind==='flag'?`veliavos/${c.c2}.svg`:`herbai/l/${c.id}.webp`;
+  img.alt=kind==='flag'?`${c.n}: vėliava`:`${c.n}: ${(c.ht||'herbas').toLowerCase()}`;
+  $('#lbcap').innerHTML=`<b>${esc(c.n)} – ${kind==='flag'?'vėliava':esc((c.ht||'herbas').toLowerCase())}</b>${esc(kind==='flag'?c.vf||'':c.hf||'')}`;
+  lb.hidden=false;lb.focus&&lb.focus()}
+$('#lightbox').addEventListener('click',()=>{$('#lightbox').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#lightbox').hidden=true});
+function wireLinks(root){root.querySelectorAll('[data-zoom]').forEach(b=>b.onclick=()=>openLightbox(b.dataset.zoom,b.dataset.c));root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const v=b.dataset.go;if(v.startsWith('c:'))selectCountry(v.slice(2),true);else selectFeature(fById[v],true)});
   root.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>ACTS[b.dataset.act](b))}
 const ACTS={};
 
@@ -654,9 +667,9 @@ function countryHTML(c){
   </dl>
   ${c.nat&&c.nat.length?`<div class="sec"><h3>Gamta</h3><ul class="facts">${c.nat.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
   ${c.vf||c.coa?`<div class="sec"><h3>Vėliava ir ${esc((c.ht||'herbas').toLowerCase())}</h3><div class="sym">
-    ${c.vf?`<div class="symrow">${flagImg(c,'symflag')}<p>${esc(c.vf)}</p></div>`:''}
-    ${c.coa||c.hf?`<div class="symrow">${c.coa?`<img src="herbai/${c.id}.webp" alt="${esc(c.n)}: ${esc((c.ht||'herbas').toLowerCase())}" loading="lazy" decoding="async">`:'<span class="symnone">—</span>'}<p>${esc(c.hf||'')}</p></div>`:''}
-    ${c.coa?'<p class="credit">Atvaizdas – Wikimedia Commons</p>':''}</div></div>`:''}
+    ${c.vf?`<div class="symrow"><button class="zoomable" data-zoom="flag" data-c="${c.id}" aria-label="Padidinti vėliavą">${flagImg(c,'symflag')}</button><p>${esc(c.vf)}</p></div>`:''}
+    ${c.coa||c.hf?`<div class="symrow">${c.coa?`<button class="zoomable" data-zoom="coa" data-c="${c.id}" aria-label="Padidinti"><img src="herbai/${c.id}.webp" alt="${esc(c.n)}: ${esc((c.ht||'herbas').toLowerCase())}" loading="lazy" decoding="async"></button>`:'<span class="symnone">—</span>'}<p>${esc(c.hf||'')}</p></div>`:''}
+    </div></div>`:''}
   ${c.f?`<div class="sec"><h3>Įdomybė</h3><ul class="facts fun"><li>${esc(c.f)}</li></ul></div>`:''}
   ${nat.length?`<div class="sec"><h3>Gamtos objektai žemėlapyje</h3><div class="linkchips">${nat.map(chipFor).join('')}</div></div>`:''}
   ${nb.length?`<div class="sec"><h3>Kaimynės</h3><div class="linkchips">${nb.map(chipC).join('')}</div></div>`:''}`;
@@ -715,9 +728,9 @@ document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('#result
 /* ---------- views ---------- */
 let curView='map';
 function showView(v){const wasMap=curView==='map';curView=v;document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
-  ['map','nature','quiz','prog'].forEach(x=>$('#v-'+x).hidden=x!==v);
+  ['map','nature','quiz'].forEach(x=>$('#v-'+x).hidden=x!==v);
   if(v==='map'&&!wasMap)requestAnimationFrame(()=>{sizeVB();zoom.extent([[0,(H-VH)/2],[W,(H+VH)/2]]);schedule()});
-  if(v==='nature')renderNature();if(v==='quiz'&&!(quiz&&!quiz.map))renderQuizHome();if(v==='prog')renderProg()}
+  if(v==='nature')renderNature();if(v==='quiz'&&!(quiz&&!quiz.map))renderQuizHome()}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>showView(b.dataset.v));
 
 /* ---------- nature view ---------- */
@@ -893,7 +906,7 @@ window.__atlas={drawMap,selectCountry,updateScale,screenOf:id=>{const c=byId[id]
 closeSheet();applyLayers();updateScale();
 requestAnimationFrame(()=>{sizeVB();zoom.extent([[0,(H-VH)/2],[W,(H+VH)/2]]);svg.call(zoom.transform,homeT())});
 const nC=C.filter(c=>c.id!=='ATA'&&c.id!=='GRL'&&c.id!=='ESH').length;$('#sub').textContent=`${nC} šalys · ${FEATS.length} gamtos objektai`;
-const hash=(location.hash||'').slice(1);if(['nature','quiz','prog'].includes(hash))showView(hash);
+const hash=(location.hash||'').slice(1);if(['nature','quiz'].includes(hash))showView(hash);
 })();
 
 </script>
