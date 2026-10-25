@@ -93,3 +93,18 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 .tabbar a[aria-current="page"]{color:var(--brand)}
 .tabbar a:hover{color:var(--accent)}
 .mast nav a+a{margin-left:14px}
+/* Archyvas: atminties santraukos */
+.archive li{border-bottom:1px solid var(--rule)}
+.archive li a{border-bottom:0}
+.recall{margin:-4px 0 14px calc(7.5em + 12px);font-size:15.5px;line-height:1.5}
+.recall summary{cursor:pointer;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);list-style:none;width:max-content}
+.recall summary::-webkit-details-marker{display:none}
+.recall summary::before{content:"▸ ";color:var(--mark)}
+.recall[open] summary::before{content:"▾ "}
+.recall ul{margin:6px 0 0;padding-left:1.1em}
+.recall li{border:0;margin-bottom:4px;color:var(--ink)}
+.recall-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:4px 0 10px}
+.recall-tools button{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;border:1px solid var(--ink);border-radius:3px;background:transparent;color:var(--ink);cursor:pointer}
+.recall-tools button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.recall-hint{font-size:14px;color:var(--muted)}
+@media (max-width:520px){.recall{margin-left:0}}

@@ -119,10 +119,24 @@ def story_page(s, newer, older, url=None):
 
 
 def archive_page(stories):
+    def recall(s):
+        pts = s.get("takeaways") or []
+        if not pts:
+            return ""
+        lis = "".join(f"<li>{e(t)}</li>" for t in pts)
+        return f'<details class="recall" open><summary>Ką verta prisiminti</summary><ul>{lis}</ul></details>'
     items = "".join(f'<li><a href="/{s["date"]}/"><span class="d">{s["date"]}</span>'
-                    f'<span class="t">{e(s["title"])}<span class="c">{e(s["category"])}</span></span></a></li>'
+                    f'<span class="t">{e(s["title"])}<span class="c">{e(s["category"])}</span></span></a>'
+                    f'{recall(s)}</li>'
                     for s in stories)
-    body = (f'<section class="archive"><h3>Archyvas</h3><ol>{items}</ol></section>'
+    tools = ('<div class="recall-tools"><button type="button" id="recall-toggle" aria-pressed="false">'
+             'Pasitikrinti atmintį</button><span class="recall-hint">Paslėps santraukas – pabandykite prisiminti, '
+             'apie ką buvo istorija, ir atsiverskite paspaudę.</span></div>')
+    script = """<script>(function(){var b=document.getElementById('recall-toggle');if(!b)return;
+b.addEventListener('click',function(){var hide=b.getAttribute('aria-pressed')!=='true';
+document.querySelectorAll('.archive details.recall').forEach(function(d){d.open=!hide;});
+b.setAttribute('aria-pressed',hide?'true':'false');b.textContent=hide?'Rodyti visas santraukas':'Pasitikrinti atmintį';});})();</script>"""
+    body = (f'<section class="archive"><h3>Archyvas</h3>{tools}<ol>{items}</ol></section>{script}'
             if stories else '<p class="lead">Istorijų dar nėra.</p>')
     return page(f"Archyvas · {NAME}", "Visos Dienos istorijos: geografija, istorija, geopolitika.", "/archyvas/", body, active="/archyvas/")
 
