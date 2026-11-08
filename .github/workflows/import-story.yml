@@ -4,7 +4,7 @@ name: Rytinė istorija
 # This workflow picks it up, publishes it on the site and emails subscribers.
 on:
   schedule:
-    - cron: "*/10 2-5 * * *"   # 05:00–08:59 Vilnius time (summer), every 10 minutes
+    - cron: "*/10 2-8 * * *"   # every 10 min, 04:00–10:59 Vilnius (winter) / 05:00–11:59 (summer); GitHub often skips runs
   workflow_dispatch:
     inputs:
       list_only:

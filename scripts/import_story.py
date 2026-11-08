@@ -90,7 +90,7 @@ def main():
         print(f"{today}: already published.")
         return
     # Scheduled runs only report a failure once, on the last check of the morning.
-    strict = os.environ.get("GITHUB_EVENT_NAME") != "schedule" or (now.hour, now.minute) >= (8, 45)
+    strict = os.environ.get("GITHUB_EVENT_NAME") != "schedule" or (now.hour, now.minute) >= (10, 30)
     try:
         files = list_folder()
     except RuntimeError as err:
