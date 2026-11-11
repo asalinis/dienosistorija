@@ -4,7 +4,9 @@ name: Rytinė istorija
 # This workflow picks it up, publishes it on the site and emails subscribers.
 on:
   schedule:
-    - cron: "*/10 2-8 * * *"   # every 10 min, 04:00–10:59 Vilnius (winter) / 05:00–11:59 (summer); GitHub often skips runs
+    # GitHub skips or delays many scheduled runs, so start several during the night;
+    # the first one that runs waits (polls Drive every 2 min) until the story appears.
+    - cron: "7 0-7 * * *"
   workflow_dispatch:
     inputs:
       list_only:
@@ -25,6 +27,7 @@ env:
 jobs:
   import:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +51,7 @@ jobs:
           git config user.email "labas@dienosistorija.lt"
           git add -A
           git commit -m "Istorija ${{ steps.imp.outputs.imported }}"
+          git pull --rebase
           git push
 
       - name: Laukti, kol svetainė atsinaujins

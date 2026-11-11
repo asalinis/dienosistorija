@@ -27,6 +27,8 @@ from zoneinfo import ZoneInfo
 FOLDER = os.environ.get("DRIVE_FOLDER_ID", "")
 UA = "DienosIstorija/1.0 (edgaras@tamo.lt)"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEADLINE = (10, 30)  # Vilnius time; after this a missing story is an error
+POLL = 120
 REQUIRED = ["date", "title", "category", "hook", "emailSummary", "body", "takeaways", "sources", "images"]
 
 
@@ -89,22 +91,23 @@ def main():
     if os.path.exists(target):
         print(f"{today}: already published.")
         return
-    # Scheduled runs only report a failure once, on the last check of the morning.
-    strict = os.environ.get("GITHUB_EVENT_NAME") != "schedule" or (now.hour, now.minute) >= (10, 30)
-    try:
-        files = list_folder()
-    except RuntimeError as err:
-        msg = f"Cannot read the Drive folder (is it shared 'Anyone with the link'?): {err}"
+    # Scheduled runs keep polling the folder (GitHub often skips or delays scheduled runs,
+    # so one run that starts early waits for the story) and only fail after DEADLINE.
+    scheduled = os.environ.get("GITHUB_EVENT_NAME") == "schedule"
+    while True:
+        now = datetime.now(ZoneInfo("Europe/Vilnius"))
+        strict = not scheduled or (now.hour, now.minute) >= DEADLINE
+        try:
+            files = list_folder()
+            if f"{today}.json" in files:
+                break
+            msg = f"{today}: story not in Drive. Folder has: {sorted(files)}"
+        except RuntimeError as err:
+            msg = f"Cannot read the Drive folder (is it shared 'Anyone with the link'?): {err}"
         if strict:
             sys.exit(msg)
-        print("Warning:", msg)
-        return
-    if f"{today}.json" not in files:
-        msg = f"{today}: story not in Drive. Folder has: {sorted(files)}"
-        if strict:
-            sys.exit(msg)
-        print(msg)
-        return
+        print(now.strftime("%H:%M"), msg, "- waiting", POLL, "s", flush=True)
+        time.sleep(POLL)
     story = json.loads(download(files[f"{today}.json"]).decode("utf-8"))
     missing = [k for k in REQUIRED if k not in story]
     if missing:
